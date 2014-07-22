@@ -1,0 +1,10 @@
+Package: com.sassoty.bundleids
+Name: BundleIDs
+Depends: applist
+Version: 1.0
+Architecture: iphoneos-arm
+Description: Retrieve the bundle ID of any app with one button!
+Maintainer: Sassoty <sassoty@gmail.com>
+Author: Sassoty <sassoty@gmail.com>
+Section: Utilities
+Depiction: http://beta-repo.sassoty.com/deps.php?pkg=com.sassoty.bundleids
