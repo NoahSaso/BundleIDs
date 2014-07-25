@@ -1,7 +1,6 @@
 @interface RootViewController: UIViewController <UITableViewDelegate, UITableViewDataSource> {
 	UITableView* tabView;
-	NSMutableArray* theArray;
-	CGRect bounds;
+	NSMutableArray* appNames;
 	NSMutableDictionary* theApps;
 }
 @end

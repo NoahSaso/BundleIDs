@@ -7,12 +7,8 @@
 @implementation RootViewController
 
 - (void)loadView {
-	
-	bounds = [[UIScreen mainScreen] bounds];
-	bounds.origin.y += 20;
-	bounds.size.height -= 20;
 
-	tabView = [[UITableView alloc] initWithFrame:bounds];
+	tabView = [[UITableView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
 	tabView.delegate = self;
 	tabView.dataSource = self;
     [tabView setAlwaysBounceVertical:YES];
@@ -22,21 +18,53 @@
 }
 
 - (void)viewDidLoad {
+
+	NSArray* excludedApps = [[NSArray alloc] initWithObjects:
+		@"AACredentialRecoveryDialog",
+		@"AccountAuthenticationDialog",
+		@"CompassCalibrationViewService",
+		@"DDActionsService",
+		@"DataActivation",
+		@"DemoApp",
+		@"FacebookAccountMigrationDialog",
+		@"FieldTest",
+		@"MailCompositionService",
+		@"MessagesViewService",
+		@"MusicUIService",
+		@"Print Center",
+		@"Setup",
+		@"Siri",
+		@"SocialUIService",
+		@"TencentWeiboAccountMigrationDialog",
+		@"TrustMe",
+		@"WebContentAnalysisUI",
+		@"WebSheet",
+		@"WebViewService",
+		@"iAd",
+		@"iAdOptOut",
+		@"iOS Diagnostics",
+		@"iTunes",
+		@"quicklookd",
+		nil];
 	
 	ALApplicationList* apps = [ALApplicationList sharedApplicationList];
-	
+
 	theApps = [[NSMutableDictionary alloc] init];
 	for(int i = 0; i < [apps.applications allKeys].count; i++) {
-		theApps[[[apps.applications allKeys] objectAtIndex:i]] = [[apps.applications allValues] objectAtIndex:i];
+		NSString* name = [[apps.applications allValues] objectAtIndex:i];
+		if([excludedApps containsObject:name]) {
+			continue;
+		}
+		theApps[[[apps.applications allKeys] objectAtIndex:i]] = name;
 	}
 
-	theArray = [[NSMutableArray alloc] init];
+	appNames = [[NSMutableArray alloc] init];
 
 	for(NSString* i in [theApps allValues]) {
-		[theArray addObject:i];
+		[appNames addObject:i];
 	}
 
-	theArray = [[theArray sortedArrayUsingSelector:@selector(compare:)] mutableCopy];
+	appNames = [[appNames sortedArrayUsingSelector:@selector(compare:)] mutableCopy];
 
 	[tabView reloadData];
 
@@ -44,13 +72,13 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
-	NSString* str = [theApps allKeysForObject:[theArray objectAtIndex:indexPath.row]][0];
+	NSString* str = [theApps allKeysForObject:[appNames objectAtIndex:indexPath.row]][0];
 	[UIPasteboard generalPasteboard].string = str;
 	[self showID:str];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return [theArray count];
+	return [appNames count];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -70,7 +98,9 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
 
-    cell.textLabel.text = [theArray objectAtIndex:indexPath.row];
+    cell.textLabel.text = [appNames objectAtIndex:indexPath.row];
+
+    cell.accessoryView = [[UIImageView alloc] initWithImage:[[ALApplicationList sharedApplicationList] iconOfSize:ALApplicationIconSizeSmall forDisplayIdentifier:[theApps allKeysForObject:[appNames objectAtIndex:indexPath.row]][0]]];
 
     return cell;
 
@@ -84,8 +114,8 @@
 	int daWidth = 200;
 	int daHeight = 90;
 	CGRect frame = CGRectMake(0,0,0,0);
-	frame.origin.x = (bounds.size.width/2)-(daWidth/2);
-	frame.origin.y = (bounds.size.height/2)-(daHeight/2);
+	frame.origin.x = (tabView.frame.size.width/2)-(daWidth/2);
+	frame.origin.y = (tabView.frame.size.height/2)-(daHeight/2);
 	frame.size.width = daWidth;
 	frame.size.height = daHeight;
 
@@ -111,7 +141,7 @@
 	}
 
 	frame.size.width = newWidth + 50;
-	frame.origin.x = (bounds.size.width/2)-(frame.size.width/2);
+	frame.origin.x = (tabView.frame.size.width/2)-(frame.size.width/2);
 
 	CGRect newFrame = CGRectMake(0,0,0,0);
 	newFrame.size.width = newWidth;
